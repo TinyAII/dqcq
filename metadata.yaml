@@ -1,8 +1,8 @@
-name: virtual_nation
+name: 虚拟国战
 description: 虚拟国政QQ群插件
 author: author
 version: "1.0.0"
-repository: "repo url"
+repository: "https://github.com/TinyAII/Virtual-National-War-bot.git"
 platforms:
   - aiocqhttp
   - kaiheila
