@@ -220,6 +220,45 @@ class VirtualNationPlugin(Star):
         finally:
             conn.close()
     
+    @filter.command("退出国家")
+    async def leave_nation(self, event: AstrMessageEvent):
+        """退出当前所在的国家"""
+        user_id = event.get_sender_id()
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        try:
+            # 检查用户是否加入了国家
+            cursor.execute(
+                "SELECT n.id, n.name FROM user_nations un JOIN nations n ON un.nation_id = n.id WHERE un.user_id = ?",
+                (user_id,)
+            )
+            nation_info = cursor.fetchone()
+            
+            if not nation_info:
+                yield event.plain_result("你还没有加入任何国家")
+                return
+            
+            nation_id, nation_name = nation_info
+            
+            # 删除用户国家关系
+            cursor.execute("DELETE FROM user_nations WHERE user_id = ?", (user_id,))
+            
+            # 更新国家成员数量
+            cursor.execute(
+                "UPDATE nations SET member_count = member_count - 1 WHERE id = ?",
+                (nation_id,)
+            )
+            
+            conn.commit()
+            yield event.plain_result(f"你已成功退出国家 {nation_name}")
+        except Exception as e:
+            logger.error(f"退出国家失败: {e}")
+            yield event.plain_result("退出国家失败，请稍后重试")
+        finally:
+            conn.close()
+    
     async def terminate(self):
         """插件被卸载/停用时调用"""
         logger.info("虚拟国政插件已关闭")
