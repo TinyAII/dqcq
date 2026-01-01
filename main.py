@@ -44,7 +44,7 @@ class VirtualNationPlugin(Star):
         conn.close()
     
     @filter.command("创建国家")
-    async def create_nation(self, event: AstrMessageEvent):
+    async def create_nation(self, event: AstrMessageEvent, *args, **kwargs):
         """创建一个新的国家"""
         user_id = event.get_sender_id()
         user_name = event.get_sender_name()
@@ -98,7 +98,7 @@ class VirtualNationPlugin(Star):
             conn.close()
     
     @filter.command("加入国家")
-    async def join_nation(self, event: AstrMessageEvent):
+    async def join_nation(self, event: AstrMessageEvent, *args, **kwargs):
         """加入一个已存在的国家"""
         user_id = event.get_sender_id()
         user_name = event.get_sender_name()
@@ -154,7 +154,7 @@ class VirtualNationPlugin(Star):
             conn.close()
     
     @filter.command("查看所有国家")
-    async def list_nations(self, event: AstrMessageEvent):
+    async def list_nations(self, event: AstrMessageEvent, *args, **kwargs):
         """查看所有已创建的国家"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -179,7 +179,7 @@ class VirtualNationPlugin(Star):
             conn.close()
     
     @filter.command("查看国家状态")
-    async def check_nation_status(self, event: AstrMessageEvent):
+    async def check_nation_status(self, event: AstrMessageEvent, *args, **kwargs):
         """查看自己所在国家的状态"""
         user_id = event.get_sender_id()
         
@@ -223,7 +223,7 @@ class VirtualNationPlugin(Star):
             conn.close()
     
     @filter.command("退出国家")
-    async def leave_nation(self, event: AstrMessageEvent):
+    async def leave_nation(self, event: AstrMessageEvent, *args, **kwargs):
         """退出当前所在的国家"""
         user_id = event.get_sender_id()
         
@@ -271,7 +271,7 @@ class VirtualNationPlugin(Star):
             conn.close()
     
     @filter.command("解散国家")
-    async def dissolve_nation(self, event: AstrMessageEvent):
+    async def dissolve_nation(self, event: AstrMessageEvent, *args, **kwargs):
         """解散自己创建的国家"""
         user_id = event.get_sender_id()
         
