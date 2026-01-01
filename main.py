@@ -3,6 +3,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 import sqlite3
 from pathlib import Path
+from .utils import NATION_HELP
 
 @register("virtual_nation", "author", "虚拟国政QQ群插件", "1.0.0", "repo url")
 class VirtualNationPlugin(Star):
@@ -548,6 +549,12 @@ class VirtualNationPlugin(Star):
             yield event.plain_result("查看国家所有成员失败，请稍后重试")
         finally:
             conn.close()
+    
+    @filter.command("国战帮助")
+    async def nation_help(self, event: AstrMessageEvent):
+        """查看国战插件的帮助信息"""
+        url = await self.text_to_image(NATION_HELP)
+        yield event.image_result(url)
     
     async def terminate(self):
         """插件被卸载/停用时调用"""
