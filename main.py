@@ -157,6 +157,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否已加入国家
@@ -190,9 +191,9 @@ class VirtualNationPlugin(Star):
                 (nation_id,)
             )
             
-            # 初始化创建者个人仓库
+            # 初始化创建者个人仓库（如果已存在则重置）
             cursor.execute(
-                "INSERT INTO user_inventory (user_id) VALUES (?)",
+                "INSERT OR REPLACE INTO user_inventory (user_id, silver, gold, update_time) VALUES (?, 100, 0, CURRENT_TIMESTAMP)",
                 (user_id,)
             )
             
@@ -223,6 +224,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否已加入国家
@@ -246,9 +248,9 @@ class VirtualNationPlugin(Star):
                 (user_id, user_name, nation_id)
             )
             
-            # 初始化用户个人仓库
+            # 初始化用户个人仓库（如果已存在则重置）
             cursor.execute(
-                "INSERT INTO user_inventory (user_id) VALUES (?)",
+                "INSERT OR REPLACE INTO user_inventory (user_id, silver, gold, update_time) VALUES (?, 100, 0, CURRENT_TIMESTAMP)",
                 (user_id,)
             )
             
@@ -271,6 +273,7 @@ class VirtualNationPlugin(Star):
         """查看所有已创建的国家"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             cursor.execute("SELECT name, member_count, creator_name FROM nations ORDER BY member_count DESC")
@@ -298,6 +301,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否加入了国家
@@ -345,6 +349,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否加入了国家
@@ -365,6 +370,9 @@ class VirtualNationPlugin(Star):
             
             # 删除用户国家关系
             cursor.execute("DELETE FROM user_nations WHERE user_id = ?", (user_id,))
+            
+            # 删除用户个人仓库记录
+            cursor.execute("DELETE FROM user_inventory WHERE user_id = ?", (user_id,))
             
             # 更新国家成员数量
             cursor.execute(
@@ -402,6 +410,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否加入了国家，且是国家创建者
@@ -429,6 +438,14 @@ class VirtualNationPlugin(Star):
             # 删除所有相关外交关系
             cursor.execute("DELETE FROM diplomacy_relations WHERE nation1_id = ? OR nation2_id = ?", (nation_id, nation_id))
             
+            # 获取国家所有成员ID
+            cursor.execute("SELECT user_id FROM user_nations WHERE nation_id = ?", (nation_id,))
+            users = cursor.fetchall()
+            
+            # 删除国家所有成员的个人仓库记录
+            for user in users:
+                cursor.execute("DELETE FROM user_inventory WHERE user_id = ?", (user[0],))
+            
             # 删除所有用户国家关系
             cursor.execute("DELETE FROM user_nations WHERE nation_id = ?", (nation_id,))
             
@@ -450,13 +467,13 @@ class VirtualNationPlugin(Star):
         message_str = event.message_str.strip()
         
         # 解析参数
-        if len(message_str) < 3:  # "/晋升 " 是3个字符
-            yield event.plain_result("请输入正确格式：/晋升 <成员名或@用户> <职位>")
+        if len(message_str) < 3:  # "/晋升" 是2个字符，加上至少1个字符的参数
+            yield event.plain_result("请输入正确格式：/晋升<成员名或@用户> <职位>")
             return
         
-        params = message_str[3:].strip().split(" ", 1)
+        params = message_str[2:].strip().split(" ", 1)
         if len(params) < 2:
-            yield event.plain_result("请输入正确格式：/晋升 <成员名或@用户> <职位>")
+            yield event.plain_result("请输入正确格式：/晋升<成员名或@用户> <职位>")
             return
         
         target_member, position_name = params[0].strip(), params[1].strip()
@@ -466,6 +483,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查当前用户是否是国家创建者
@@ -543,17 +561,18 @@ class VirtualNationPlugin(Star):
         message_str = event.message_str.strip()
         
         # 解析参数
-        if len(message_str) < 3:  # "/撤职 " 是3个字符
-            yield event.plain_result("请输入正确格式：/撤职 <成员名或@用户>")
+        if len(message_str) < 3:  # "/撤职" 是2个字符，加上至少1个字符的参数
+            yield event.plain_result("请输入正确格式：/撤职<成员名或@用户>")
             return
         
-        target_member = message_str[3:].strip()
+        target_member = message_str[2:].strip()
         if not target_member:
             yield event.plain_result("成员名不能为空")
             return
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查当前用户是否是国家创建者
@@ -613,6 +632,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否加入了国家
@@ -666,6 +686,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否是国家创建者
@@ -713,6 +734,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 检查用户是否已加入国家
@@ -768,6 +790,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否是国家创建者
@@ -869,6 +892,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否是国家创建者
@@ -929,6 +953,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否加入了国家
@@ -977,6 +1002,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否加入了国家
@@ -1048,6 +1074,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否是国家创建者
@@ -1133,6 +1160,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否是国家创建者
@@ -1202,6 +1230,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否是国家创建者
@@ -1298,6 +1327,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否加入了国家
@@ -1350,6 +1380,7 @@ class VirtualNationPlugin(Star):
         
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")  # 启用外键约束
         
         try:
             # 1. 检查用户是否是国家创建者
