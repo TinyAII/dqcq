@@ -93,11 +93,11 @@ MENU_TEMPLATE = '''
 
 @register("literary_battle_qi", "author", "文字斗气机器人插件", "1.0.0")
 class LiteraryBattleQiBot(Star):
-    def __init__(self, context: Context):
+    def __init__(self, context):
         super().__init__(context)
         self.client = httpx.AsyncClient(timeout=10.0)
     
-    async def _call_api(self, action: str, params: dict) -> dict:
+    async def _call_api(self, action, params):
         """调用API的通用方法"""
         try:
             response = await self.client.get(API_URL, params={"action": action, **params})
@@ -110,7 +110,7 @@ class LiteraryBattleQiBot(Star):
             logger.error(f"API处理失败: {e}")
             return {"code": 500, "message": "服务器内部错误，请稍后重试"}
     
-    def _format_response(self, response: dict) -> str:
+    def _format_response(self, response):
         """格式化API响应"""
         code = response.get("code")
         message = response.get("message", "未知错误")
@@ -121,7 +121,7 @@ class LiteraryBattleQiBot(Star):
         
         return message
     
-    async def text_to_image_menu_style(self, text: str, *args, **kwargs) -> str:
+    async def text_to_image_menu_style(self, text, *args, **kwargs):
         """使用菜单样式的HTML模板生成图片"""
         try:
             # 将文本内容转换为结构化HTML
@@ -208,6 +208,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("创建角色", alias={"注册", "开始斗气"})
     async def create_character(self, *args, **kwargs):
         """创建斗气角色"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("创建角色", "").replace("注册", "").replace("开始斗气", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：创建角色 123456")
@@ -229,6 +233,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("状态", alias={"我的状态", "查看状态"})
     async def status(self, *args, **kwargs):
         """查看自己的斗气状态"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("状态", "").replace("我的状态", "").replace("查看状态", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：状态 123456")
@@ -260,6 +268,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("个人信息", alias={"信息", "我的信息"})
     async def personal_info(self, *args, **kwargs):
         """查看详细角色信息"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("个人信息", "").replace("信息", "").replace("我的信息", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：个人信息 123456")
@@ -337,6 +349,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("打坐", alias={"修炼", "冥想"})
     async def meditate(self, *args, **kwargs):
         """基础修炼获得斗气，每次获得20斗气"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("打坐", "").replace("修炼", "").replace("冥想", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：打坐 123456")
@@ -363,6 +379,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("突破", alias={"升级", "进阶"})
     async def breakthrough(self, *args, **kwargs):
         """消耗斗气突破境界，有成功率"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("突破", "").replace("升级", "").replace("进阶", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：突破 123456")
@@ -390,6 +410,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("调息", alias={"恢复", "休息"})
     async def recover(self, *args, **kwargs):
         """恢复生命和灵力"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("调息", "").replace("恢复", "").replace("休息", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：调息 123456")
@@ -402,6 +426,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("闭关", alias={"深度修炼"})
     async def seclusion(self, *args, **kwargs):
         """长时间修炼获得更多斗气，每分钟1斗气"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：闭关 123456")
@@ -437,6 +465,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("排行榜", alias={"排名", "榜单"})
     async def ranking(self, *args, **kwargs):
         """查看斗气排行榜"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         response = await self._call_api("排行榜", {})
         
         if response.get("code") != 200:
@@ -464,6 +496,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("道友", alias={"好友", "道友列表"})
     async def friends(self, *args, **kwargs):
         """查看好友/道友"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("道友", "").replace("好友", "").replace("道友列表", "").strip()
         if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：道友 123456")
@@ -492,6 +528,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("切磋", alias={"比试", "挑战"})
     async def duel(self, *args, **kwargs):
         """与道友切磋"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("切磋", "").replace("比试", "").replace("挑战", "").strip()
         parts = msg.split()
         if len(parts) < 2:
@@ -542,6 +582,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("赠送", alias={"送礼", "给予"})
     async def give(self, *args, **kwargs):
         """赠送物品给道友"""
+        event = args[0] if args else None
+        if not event:
+            return
+        
         msg = event.message_str.replace("赠送", "").replace("送礼", "").replace("给予", "").strip()
         parts = msg.split()
         if len(parts) < 3:
