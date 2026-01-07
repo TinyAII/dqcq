@@ -165,17 +165,17 @@ class LiteraryBattleQiBot(Star):
 突破需求：{breakthrough.get('突破需求')}
 
 === 道友列表 ===
-{"\n".join(f"- {friend}" for friend in friends) if friends else "暂无道友"}
+{chr(10).join(f"- {friend}" for friend in friends) if friends else "暂无道友"}
 
 === 切磋战绩 ===
 胜利：{battle.get('胜利')}
 失败：{battle.get('失败')}
 
 === 技能 ===
-{"\n".join(f"- {skill}" for skill in skills) if skills else "暂无技能"}
+{chr(10).join(f"- {skill}" for skill in skills) if skills else "暂无技能"}
 
 === 物品 ===
-{"\n".join(f"- {item}" for item in items) if items else "暂无物品"}
+{chr(10).join(f"- {item}" for item in items) if items else "暂无物品"}
 """
         yield event.plain_result(info_text)
     
