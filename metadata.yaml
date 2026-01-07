@@ -1,8 +1,11 @@
-name: astrbot_plugin_xiuxian
-display_name: 修仙文字游戏
-author: 开发者
-description: 一个基于QQ机器人的修仙文字游戏插件，支持角色创建、修炼、突破境界等功能
-version: 1.0.0
-repository: https://github.com/example/astrbot_plugin_xiuxian
-license: MIT
-requirements: requirements.txt
+name: literary_battle_qi # 插件的唯一识别名
+
+desc: 文字斗气机器人插件 - 基于文字斗气API的QQ机器人插件，支持修炼、突破、切磋等功能  # 插件简短描述
+
+display_name: 文字斗气机器人 #
+
+version: 1.0.0 # 插件版本号
+
+author: author # 作者
+
+repo:https://github.com/TinyAII/Virtual-National-War-bot.git
