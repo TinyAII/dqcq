@@ -206,12 +206,14 @@ class LiteraryBattleQiBot(Star):
             yield event.plain_result(help_text)
     
     @filter.command("创建角色", alias={"注册", "开始斗气"})
-    async def create_character(self, event: AstrMessageEvent, username: str = None):
+    async def create_character(self, event: AstrMessageEvent):
         """创建斗气角色"""
-        if not username:
+        msg = event.message_str.replace("创建角色", "").replace("注册", "").replace("开始斗气", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：创建角色 123456")
             return
         
+        username = msg.strip()
         # 检查用户名格式
         if not username.isdigit():
             yield event.plain_result("❌ 用户名只能是纯数字！")
@@ -225,12 +227,14 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(self._format_response(response))
     
     @filter.command("状态", alias={"我的状态", "查看状态"})
-    async def status(self, event: AstrMessageEvent, username: str = None):
+    async def status(self, event: AstrMessageEvent):
         """查看自己的斗气状态"""
-        if not username:
+        msg = event.message_str.replace("状态", "").replace("我的状态", "").replace("查看状态", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：状态 123456")
             return
         
+        username = msg.strip()
         response = await self._call_api("状态", {"username": username})
         
         if response.get("code") != 200:
@@ -254,12 +258,14 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(status_text)
     
     @filter.command("个人信息", alias={"信息", "我的信息"})
-    async def personal_info(self, event: AstrMessageEvent, username: str = None):
+    async def personal_info(self, event: AstrMessageEvent):
         """查看详细角色信息"""
-        if not username:
+        msg = event.message_str.replace("个人信息", "").replace("信息", "").replace("我的信息", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：个人信息 123456")
             return
         
+        username = msg.strip()
         response = await self._call_api("个人信息", {"username": username})
         
         if response.get("code") != 200:
@@ -329,12 +335,14 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(info_text)
     
     @filter.command("打坐", alias={"修炼", "冥想"})
-    async def meditate(self, event: AstrMessageEvent, username: str = None):
+    async def meditate(self, event: AstrMessageEvent):
         """基础修炼获得斗气，每次获得20斗气"""
-        if not username:
+        msg = event.message_str.replace("打坐", "").replace("修炼", "").replace("冥想", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：打坐 123456")
             return
         
+        username = msg.strip()
         response = await self._call_api("打坐", {"username": username})
         
         if response.get("code") != 200:
@@ -353,12 +361,14 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(meditate_text)
     
     @filter.command("突破", alias={"升级", "进阶"})
-    async def breakthrough(self, event: AstrMessageEvent, username: str = None):
+    async def breakthrough(self, event: AstrMessageEvent):
         """消耗斗气突破境界，有成功率"""
-        if not username:
+        msg = event.message_str.replace("突破", "").replace("升级", "").replace("进阶", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：突破 123456")
             return
         
+        username = msg.strip()
         response = await self._call_api("突破", {"username": username})
         
         if response.get("code") != 200:
@@ -378,21 +388,28 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(breakthrough_text)
     
     @filter.command("调息", alias={"恢复", "休息"})
-    async def recover(self, event: AstrMessageEvent, username: str = None):
+    async def recover(self, event: AstrMessageEvent):
         """恢复生命和灵力"""
-        if not username:
+        msg = event.message_str.replace("调息", "").replace("恢复", "").replace("休息", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：调息 123456")
             return
         
+        username = msg.strip()
         response = await self._call_api("调息", {"username": username})
         yield event.plain_result(self._format_response(response))
     
     @filter.command("闭关", alias={"深度修炼"})
-    async def seclusion(self, event: AstrMessageEvent, username: str = None, duration: int = None):
+    async def seclusion(self, event: AstrMessageEvent):
         """长时间修炼获得更多斗气，每分钟1斗气"""
-        if not username:
+        msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：闭关 123456")
             return
+        
+        parts = msg.split()
+        username = parts[0]
+        duration = parts[1] if len(parts) > 1 else None
         
         params = {"username": username}
         if duration:
@@ -445,12 +462,14 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(ranking_text)
     
     @filter.command("道友", alias={"好友", "道友列表"})
-    async def friends(self, event: AstrMessageEvent, username: str = None):
+    async def friends(self, event: AstrMessageEvent):
         """查看好友/道友"""
-        if not username:
+        msg = event.message_str.replace("道友", "").replace("好友", "").replace("道友列表", "").strip()
+        if not msg:
             yield event.plain_result("❌ 请输入用户名！格式：道友 123456")
             return
         
+        username = msg.strip()
         response = await self._call_api("道友", {"username": username})
         
         if response.get("code") != 200:
@@ -471,22 +490,21 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(friends_text)
     
     @filter.command("切磋", alias={"比试", "挑战"})
-    async def duel(self, event: AstrMessageEvent, username: str = None, target: str = None):
+    async def duel(self, event: AstrMessageEvent):
         """与道友切磋"""
-        if not username:
-            yield event.plain_result("❌ 请输入用户名！格式：切磋 123456 @456789")
+        msg = event.message_str.replace("切磋", "").replace("比试", "").replace("挑战", "").strip()
+        parts = msg.split()
+        if len(parts) < 2:
+            yield event.plain_result("❌ 请输入完整参数！格式：切磋 123456 @456789")
             return
         
-        if not target:
-            yield event.plain_result("❌ 请输入切磋对象！格式：切磋 123456 @456789")
-            return
+        username = parts[0]
+        target = parts[1]
         
         # 检查target格式
         if not target.startswith("@"):
             yield event.plain_result("❌ 切磋对象格式错误！请使用 @用户名 格式，如 @456789")
             return
-        
-        target_username = target[1:]  # 去掉@符号
         
         response = await self._call_api("切磋", {"username": username, "target": target})
         
@@ -522,19 +540,17 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(duel_text)
     
     @filter.command("赠送", alias={"送礼", "给予"})
-    async def give(self, event: AstrMessageEvent, username: str = None, target: str = None, item: str = None):
+    async def give(self, event: AstrMessageEvent):
         """赠送物品给道友"""
-        if not username:
-            yield event.plain_result("❌ 请输入用户名！格式：赠送 123456 @456789 灵石x10")
+        msg = event.message_str.replace("赠送", "").replace("送礼", "").replace("给予", "").strip()
+        parts = msg.split()
+        if len(parts) < 3:
+            yield event.plain_result("❌ 请输入完整参数！格式：赠送 123456 @456789 灵石x10")
             return
         
-        if not target:
-            yield event.plain_result("❌ 请输入赠送对象！格式：赠送 123456 @456789 灵石x10")
-            return
-        
-        if not item:
-            yield event.plain_result("❌ 请输入赠送物品！格式：赠送 123456 @456789 灵石x10")
-            return
+        username = parts[0]
+        target = parts[1]
+        item = " ".join(parts[2:])
         
         # 检查target格式
         if not target.startswith("@"):
