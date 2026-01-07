@@ -116,6 +116,317 @@ MENU_TEMPLATE = '''
 </html>
 '''
 
+# 个人信息样式的HTML模板
+PERSONAL_INFO_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斗气角色信息</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 30px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .basic-info {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .username {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        .create-time {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .info-item {
+            background-color: white;
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .info-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .list-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .list-item {
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #f0f8ff;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        .list-empty {
+            text-align: center;
+            color: #95a5a6;
+            font-style: italic;
+            padding: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">📋 斗气角色详细信息 📋</h1>
+        
+        <!-- 基本信息 -->
+        <div class="basic-info">
+            <div class="username">{{username}}</div>
+            <div class="create-time">创建时间：{{create_time}}</div>
+        </div>
+        
+        <!-- 斗气状态 -->
+        <div class="section">
+            <h2 class="section-title">💫 斗气状态</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">等级</div>
+                    <div class="info-value">{{level}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">修为</div>
+                    <div class="info-value">{{cultivation}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">境界</div>
+                    <div class="info-value">{{realm}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">经验值</div>
+                    <div class="info-value">{{experience}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">斗气值</div>
+                    <div class="info-value">{{battle_qi}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 属性 -->
+        <div class="section">
+            <h2 class="section-title">⚡ 属性</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">生命值</div>
+                    <div class="info-value">{{health}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">灵力值</div>
+                    <div class="info-value">{{mana}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">体力值</div>
+                    <div class="info-value">{{stamina}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 财富 -->
+        <div class="section">
+            <h2 class="section-title">💰 财富</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">金币</div>
+                    <div class="info-value">{{gold}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">灵石</div>
+                    <div class="info-value">{{spirit_stone}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 突破信息 -->
+        <div class="section">
+            <h2 class="section-title">🚀 突破信息</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">下一境界</div>
+                    <div class="info-value">{{next_realm}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">所需斗气</div>
+                    <div class="info-value">{{required_battle_qi}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">当前斗气</div>
+                    <div class="info-value">{{current_battle_qi}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">突破成功率</div>
+                    <div class="info-value">{{breakthrough_rate}}</div>
+                </div>
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">突破需求</div>
+                    <div class="info-value">{{breakthrough_requirement}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 修炼冷却 -->
+        <div class="section">
+            <h2 class="section-title">⏰ 修炼冷却</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">打坐</div>
+                    <div class="info-value">{{cd_meditate}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">突破</div>
+                    <div class="info-value">{{cd_breakthrough}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">调息</div>
+                    <div class="info-value">{{cd_recover}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">闭关</div>
+                    <div class="info-value">{{cd_seclusion}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">切磋</div>
+                    <div class="info-value">{{cd_duel}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">赠送</div>
+                    <div class="info-value">{{cd_give}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 切磋战绩 -->
+        <div class="section">
+            <h2 class="section-title">⚔️ 切磋战绩</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">胜利</div>
+                    <div class="info-value">{{battle_wins}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">失败</div>
+                    <div class="info-value">{{battle_losses}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 道友列表 -->
+        <div class="section">
+            <h2 class="section-title">👥 道友列表</h2>
+            <div class="list-section">
+                {% if friends %}
+                    {% for friend in friends %}
+                        <div class="list-item">{{friend}}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="list-empty">暂无道友</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 技能 -->
+        <div class="section">
+            <h2 class="section-title">✨ 技能</h2>
+            <div class="list-section">
+                {% if skills %}
+                    {% for skill in skills %}
+                        <div class="list-item">{{skill}}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="list-empty">暂无技能</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 物品 -->
+        <div class="section">
+            <h2 class="section-title">🎒 物品</h2>
+            <div class="list-section">
+                {% if items %}
+                    {% for item in items %}
+                        <div class="list-item">{{item}}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="list-empty">暂无物品</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="footer">
+            查询时间：{{current_time}} | 文字斗气系统
+        </div>
+    </div>
+</body>
+</html>
+'''
+
 @register("literary_battle_qi", "author", "文字斗气机器人插件", "1.0.0")
 class LiteraryBattleQiBot(Star):
     def __init__(self, context):
@@ -202,6 +513,85 @@ class LiteraryBattleQiBot(Star):
             # 回退到默认的纯文本输出
             return None
     
+    async def render_personal_info_image(self, data):
+        """使用个人信息模板生成图片"""
+        try:
+            # 提取数据
+            basic = data.get("基本信息", {})
+            battle_qi = data.get("斗气状态", {})
+            attributes = data.get("属性", {})
+            wealth = data.get("财富", {})
+            cooldowns = data.get("修炼冷却", {})
+            breakthrough = data.get("突破信息", {})
+            friends = data.get("道友列表", [])
+            battle = data.get("切磋战绩", {})
+            skills = data.get("技能", [])
+            items = data.get("物品", [])
+            
+            # 格式化当前时间
+            from datetime import datetime
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # 替换模板变量
+            html_content = PERSONAL_INFO_TEMPLATE
+            html_content = html_content.replace("{{username}}", basic.get('用户名', ''))
+            html_content = html_content.replace("{{create_time}}", basic.get('创建时间', ''))
+            html_content = html_content.replace("{{level}}", str(battle_qi.get('等级', 0)))
+            html_content = html_content.replace("{{cultivation}}", str(battle_qi.get('修为', 0)))
+            html_content = html_content.replace("{{realm}}", battle_qi.get('境界', ''))
+            html_content = html_content.replace("{{experience}}", str(battle_qi.get('经验值', 0)))
+            html_content = html_content.replace("{{battle_qi}}", str(battle_qi.get('斗气值', 0)))
+            html_content = html_content.replace("{{health}}", str(attributes.get('生命值', 0)))
+            html_content = html_content.replace("{{mana}}", str(attributes.get('灵力值', 0)))
+            html_content = html_content.replace("{{stamina}}", str(attributes.get('体力值', 0)))
+            html_content = html_content.replace("{{gold}}", str(wealth.get('金币', 0)))
+            html_content = html_content.replace("{{spirit_stone}}", str(wealth.get('灵石', 0)))
+            html_content = html_content.replace("{{next_realm}}", breakthrough.get('下一境界', ''))
+            html_content = html_content.replace("{{required_battle_qi}}", str(breakthrough.get('所需斗气', 0)))
+            html_content = html_content.replace("{{current_battle_qi}}", str(breakthrough.get('当前斗气', 0)))
+            html_content = html_content.replace("{{breakthrough_rate}}", str(breakthrough.get('突破成功率', 0)))
+            html_content = html_content.replace("{{breakthrough_requirement}}", breakthrough.get('突破需求', ''))
+            html_content = html_content.replace("{{cd_meditate}}", cooldowns.get('打坐', ''))
+            html_content = html_content.replace("{{cd_breakthrough}}", cooldowns.get('突破', ''))
+            html_content = html_content.replace("{{cd_recover}}", cooldowns.get('调息', ''))
+            html_content = html_content.replace("{{cd_seclusion}}", cooldowns.get('闭关', ''))
+            html_content = html_content.replace("{{cd_duel}}", cooldowns.get('切磋', ''))
+            html_content = html_content.replace("{{cd_give}}", cooldowns.get('赠送', ''))
+            html_content = html_content.replace("{{battle_wins}}", str(battle.get('胜利', 0)))
+            html_content = html_content.replace("{{battle_losses}}", str(battle.get('失败', 0)))
+            html_content = html_content.replace("{{current_time}}", current_time)
+            
+            # 处理列表数据
+            friends_html = '\n'.join([f'<div class="list-item">{friend}</div>' for friend in friends]) if friends else '<div class="list-empty">暂无道友</div>'
+            skills_html = '\n'.join([f'<div class="list-item">{skill}</div>' for skill in skills]) if skills else '<div class="list-empty">暂无技能</div>'
+            items_html = '\n'.join([f'<div class="list-item">{item}</div>' for item in items]) if items else '<div class="list-empty">暂无物品</div>'
+            
+            # 替换列表变量
+            html_content = html_content.replace("{% if friends %}\n                    {% for friend in friends %}\n                        <div class=\"list-item\">{{friend}}</div>\n                    {% endfor %}\n                {% else %}\n                    <div class=\"list-empty\">暂无道友</div>\n                {% endif %}", friends_html)
+            html_content = html_content.replace("{% if skills %}\n                    {% for skill in skills %}\n                        <div class=\"list-item\">{{skill}}</div>\n                    {% endfor %}\n                {% else %}\n                    <div class=\"list-empty\">暂无技能</div>\n                {% endif %}", skills_html)
+            html_content = html_content.replace("{% if items %}\n                    {% for item in items %}\n                        <div class=\"list-item\">{{item}}</div>\n                    {% endfor %}\n                {% else %}\n                    <div class=\"list-empty\">暂无物品</div>\n                {% endif %}", items_html)
+            
+            # 使用html_render函数生成图片
+            options = {
+                "full_page": True,
+                "type": "jpeg",
+                "quality": 95,
+            }
+            
+            # 调用AstrBot的html_render方法
+            image_url = await self.html_render(
+                html_content,  # 渲染后的HTML内容
+                {},  # 空数据字典
+                True,  # 返回URL
+                options  # 图片生成选项
+            )
+            
+            return image_url
+        except Exception as e:
+            logger.error(f"个人信息图片生成失败：{e}")
+            # 回退到默认的纯文本输出
+            return None
+    
     @filter.command("斗气帮助", alias={"帮助", "斗气指令"})
     async def help(self, event):
         """查看所有指令说明"""
@@ -281,18 +671,27 @@ class LiteraryBattleQiBot(Star):
             return
         
         data = response.get("data", {})
-        basic = data.get("基本信息", {})
-        battle_qi = data.get("斗气状态", {})
-        attributes = data.get("属性", {})
-        wealth = data.get("财富", {})
-        cooldowns = data.get("修炼冷却", {})
-        breakthrough = data.get("突破信息", {})
-        friends = data.get("道友列表", [])
-        battle = data.get("切磋战绩", {})
-        skills = data.get("技能", [])
-        items = data.get("物品", [])
         
-        info_text = f"""📋 {basic.get('用户名')} 的详细信息：
+        # 尝试生成图片
+        image_url = await self.render_personal_info_image(data)
+        
+        if image_url:
+            # 如果生成图片成功，发送图片
+            yield event.image_result(image_url).use_t2i(False)
+        else:
+            # 否则发送纯文本
+            basic = data.get("基本信息", {})
+            battle_qi = data.get("斗气状态", {})
+            attributes = data.get("属性", {})
+            wealth = data.get("财富", {})
+            cooldowns = data.get("修炼冷却", {})
+            breakthrough = data.get("突破信息", {})
+            friends = data.get("道友列表", [])
+            battle = data.get("切磋战绩", {})
+            skills = data.get("技能", [])
+            items = data.get("物品", [])
+            
+            info_text = f"""📋 {basic.get('用户名')} 的详细信息：
 
 📅 创建时间：{basic.get('创建时间')}
 
@@ -340,7 +739,7 @@ class LiteraryBattleQiBot(Star):
 === 物品 ===
 {chr(10).join(f"- {item}" for item in items) if items else "暂无物品"}
 """
-        yield event.plain_result(info_text)
+            yield event.plain_result(info_text)
     
     @filter.command("打坐", alias={"修炼", "冥想"})
     async def meditate(self, event):
