@@ -1007,19 +1007,23 @@ class LiteraryBattleQiBot(Star):
     @filter.command("创建角色", alias={"注册", "开始斗气"})
     async def create_character(self, event):
         """创建斗气角色"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 按照用户要求：用户名用QQ名，密码用QQ号
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("创建角色", {"username": username})
+        response = await self._call_api("创建角色", {"username": username, "password": password})
         yield event.plain_result(self._format_response(response))
     
     @filter.command("状态", alias={"我的状态", "查看状态"})
     async def status(self, event):
         """查看自己的斗气状态"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("状态", {"username": username})
+        response = await self._call_api("状态", {"username": username, "password": password})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1053,10 +1057,12 @@ class LiteraryBattleQiBot(Star):
     @filter.command("个人信息", alias={"信息", "我的信息"})
     async def personal_info(self, event):
         """查看详细角色信息"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("个人信息", {"username": username})
+        response = await self._call_api("个人信息", {"username": username, "password": password})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1136,10 +1142,12 @@ class LiteraryBattleQiBot(Star):
     @filter.command("打坐", alias={"修炼", "冥想"})
     async def meditate(self, event):
         """基础修炼获得斗气，每次获得20斗气"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("打坐", {"username": username})
+        response = await self._call_api("打坐", {"username": username, "password": password})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1159,10 +1167,12 @@ class LiteraryBattleQiBot(Star):
     @filter.command("突破", alias={"升级", "进阶"})
     async def breakthrough(self, event):
         """消耗斗气突破境界，有成功率"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("突破", {"username": username})
+        response = await self._call_api("突破", {"username": username, "password": password})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1183,17 +1193,21 @@ class LiteraryBattleQiBot(Star):
     @filter.command("调息", alias={"恢复", "休息"})
     async def recover(self, event):
         """恢复生命和灵力"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("调息", {"username": username})
+        response = await self._call_api("调息", {"username": username, "password": password})
         yield event.plain_result(self._format_response(response))
     
     @filter.command("闭关", alias={"深度修炼"})
     async def seclusion(self, event):
         """长时间修炼获得更多斗气，每分钟1斗气"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
         # 解析可选的时长参数
         msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
@@ -1202,7 +1216,7 @@ class LiteraryBattleQiBot(Star):
             # 只取第一个参数作为时长
             duration = msg.split()[0]
         
-        params = {"username": username}
+        params = {"username": username, "password": password}
         if duration:
             params["duration"] = duration
         
@@ -1264,10 +1278,12 @@ class LiteraryBattleQiBot(Star):
     @filter.command("道友", alias={"好友", "道友列表"})
     async def friends(self, event):
         """查看好友/道友"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
-        response = await self._call_api("道友", {"username": username})
+        response = await self._call_api("道友", {"username": username, "password": password})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1289,8 +1305,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("切磋", alias={"比试", "挑战"})
     async def duel(self, event):
         """与道友切磋"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
         msg = event.message_str.replace("切磋", "").replace("比试", "").replace("挑战", "").strip()
         parts = msg.split()
@@ -1305,7 +1323,7 @@ class LiteraryBattleQiBot(Star):
             yield event.plain_result("❌ 切磋对象格式错误！请使用 @用户名 格式，如 @456789")
             return
         
-        response = await self._call_api("切磋", {"username": username, "target": target})
+        response = await self._call_api("切磋", {"username": username, "password": password, "target": target})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1358,7 +1376,7 @@ class LiteraryBattleQiBot(Star):
             yield event.plain_result("❌ 赠送对象格式错误！请使用 @用户名 格式，如 @456789")
             return
         
-        response = await self._call_api("赠送", {"username": username, "target": target, "item": item})
+        response = await self._call_api("赠送", {"username": username, "password": username, "target": target, "item": item})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
