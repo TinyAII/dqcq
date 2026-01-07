@@ -975,11 +975,11 @@ class LiteraryBattleQiBot(Star):
             # 回退到默认的纯文本输出
             return None
     
-    @filter.command("斗气帮助", alias={"帮助", "斗气指令"})
+    @filter.command("斗破帮助", alias={"帮助", "斗破指令", "斗气帮助", "斗气指令"})
     async def help(self, event):
         """查看所有指令说明"""
         help_text = (
-                     "🔹 **斗气帮助**   - 查看所有指令说明\n" +
+                     "🔹 **斗破帮助**   - 查看所有指令说明\n" +
                      "🔹 **创建角色**   - 创建斗气角色（自动使用你的QQ号，无需额外参数）\n" +
                      "🔹 **状态**       - 查看自己的斗气状态\n" +
                      "🔹 **个人信息**   - 查看详细角色信息\n" +
@@ -991,6 +991,22 @@ class LiteraryBattleQiBot(Star):
                      "🔹 **道友**       - 查看好友/道友列表\n" +
                      "🔹 **切磋**       - 与道友切磋（格式：切磋 @目标QQ号）\n" +
                      "🔹 **赠送**       - 赠送物品给道友（格式：赠送 @目标QQ号 物品x数量）\n" +
+                     "🔹 **任务**       - 任务系统（格式：任务 [列表/领取/完成]）\n" +
+                     "🔹 **背包**       - 查看或管理背包物品（格式：背包 [查看/整理/使用 物品名]）\n" +
+                     "🔹 **签到**       - 每日签到，领取基础资源（冷却24小时）\n" +
+                     "🔹 **日志**       - 查看近期修炼和战斗记录\n" +
+                     "🔹 **探索**       - 探索地点获取资源（格式：探索 [地点]）\n" +
+                     "🔹 **副本**       - 挑战副本获得奖励（格式：副本 [副本名称]）\n" +
+                     "🔹 **逃跑**       - 脱离战斗\n" +
+                     "🔹 **采集**       - 采集药材（格式：采集 [药材名称]）\n" +
+                     "🔹 **炼制**       - 炼制丹药（格式：炼制 [丹药名称]）\n" +
+                     "🔹 **丹方**       - 查看丹药配方（格式：丹方 [丹药名称]）\n" +
+                     "🔹 **学习功法**   - 学习新的功法（格式：学习功法 [功法名称]）\n" +
+                     "🔹 **升级功法**   - 升级已有功法（格式：升级功法 [功法名称]）\n" +
+                     "🔹 **技能**       - 查看技能列表\n" +
+                     "🔹 **宗门**       - 宗门系统（格式：宗门 [创建/加入/退出/信息]）\n" +
+                     "🔹 **宗门任务**   - 宗门任务系统（格式：宗门任务 [领取/完成]）\n" +
+                     "🔹 **拍卖行**     - 拍卖行系统（格式：拍卖行 [搜索/购买/上架]）\n" +
                      ""
                      )
         
@@ -1359,8 +1375,10 @@ class LiteraryBattleQiBot(Star):
     @filter.command("赠送", alias={"送礼", "给予"})
     async def give(self, event):
         """赠送物品给道友"""
-        # 自动获取用户的QQ号作为用户名
-        username = str(event.message_obj.sender.user_id)
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
         
         msg = event.message_str.replace("赠送", "").replace("送礼", "").replace("给予", "").strip()
         parts = msg.split()
@@ -1376,7 +1394,7 @@ class LiteraryBattleQiBot(Star):
             yield event.plain_result("❌ 赠送对象格式错误！请使用 @用户名 格式，如 @456789")
             return
         
-        response = await self._call_api("赠送", {"username": username, "password": username, "target": target, "item": item})
+        response = await self._call_api("赠送", {"username": username, "password": password, "target": target, "item": item})
         
         if response.get("code") != 200:
             yield event.plain_result(self._format_response(response))
@@ -1395,6 +1413,348 @@ class LiteraryBattleQiBot(Star):
 
 ⏰ 冷却时间：10分钟"""
         yield event.plain_result(give_text)
+    
+    @filter.command("任务", alias={"任务列表", "领取任务", "完成任务"})
+    async def task(self, event):
+        """任务系统"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        # 解析任务操作
+        msg = event.message_str.replace("任务", "").replace("任务列表", "").replace("领取任务", "").replace("完成任务", "").strip()
+        parts = msg.split()
+        
+        action_type = "列表"  # 默认查看任务列表
+        task_id = None
+        
+        if parts:
+            action_type = parts[0]
+            if len(parts) > 1:
+                task_id = parts[1]
+        
+        params = {"username": username, "password": password, "action_type": action_type}
+        if task_id:
+            params["task_id"] = task_id
+        
+        response = await self._call_api("任务", params)
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        if action_type == "列表":
+            # 生成任务列表文本
+            task_list = data.get("任务列表", [])
+            task_text = f"""📋 任务列表
+
+{response.get('message')}
+
+"""
+            for task in task_list:
+                task_text += f"🎯 {task.get('name')}\n"
+                task_text += f"   描述：{task.get('description')}\n"
+                task_text += f"   奖励：斗气{task.get('reward', {}).get('斗气', 0)}，灵石{task.get('reward', {}).get('灵石', 0)}，经验{task.get('reward', {}).get('经验', 0)}\n\n"
+        else:
+            task_text = response.get('message', '操作成功')
+        
+        yield event.plain_result(task_text)
+    
+    @filter.command("背包", alias={"背包查看", "背包整理", "使用物品"})
+    async def backpack(self, event):
+        """背包管理系统"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        # 解析背包操作
+        msg = event.message_str.replace("背包", "").replace("背包查看", "").replace("背包整理", "").replace("使用物品", "").strip()
+        parts = msg.split()
+        
+        action_type = "查看"  # 默认查看背包
+        item_name = None
+        
+        if parts:
+            action_type = parts[0]
+            if len(parts) > 1:
+                item_name = " ".join(parts[1:])
+        
+        params = {"username": username, "password": password, "action_type": action_type}
+        if item_name:
+            params["item_name"] = item_name
+        
+        response = await self._call_api("背包", params)
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        if action_type == "查看":
+            # 生成背包物品列表
+            items = data.get("背包物品", {})
+            backpack_text = f"""🎒 背包物品
+
+{response.get('message')}
+
+物品数量：{data.get('物品数量', 0)}
+
+"""
+            for item, count in items.items():
+                backpack_text += f"- {item}: {count}\n"
+        else:
+            backpack_text = response.get('message', '操作成功')
+        
+        yield event.plain_result(backpack_text)
+    
+    @filter.command("签到", alias={"每日签到"})
+    async def sign_in(self, event):
+        """每日签到领取奖励"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        response = await self._call_api("签到", {"username": username, "password": password})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        sign_in_text = f"""📅 签到成功！
+
+{response.get('message')}
+
+签到日期：{data.get('签到日期')}
+连续签到天数：{data.get('连续签到天数')}天
+
+=== 获得奖励 ===
+斗气：{data.get('获得奖励', {}).get('斗气', 0)}
+灵石：{data.get('获得奖励', {}).get('灵石', 0)}
+经验：{data.get('获得奖励', {}).get('经验', 0)}
+
+⏰ 冷却时间：24小时"""
+        yield event.plain_result(sign_in_text)
+    
+    @filter.command("日志", alias={"修炼日志", "战斗日志"})
+    async def log(self, event):
+        """查看近期修炼和战斗记录"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        response = await self._call_api("日志", {"username": username, "password": password})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        log_list = data.get("日志列表", [])
+        log_text = f"""📋 修炼日志
+
+{response.get('message')}
+
+日志数量：{data.get('日志数量', 0)}
+
+"""
+        for log in log_list:
+            log_text += f"⏰ {log.get('时间')} - {log.get('类型')}\n"
+            log_text += f"   {log.get('内容')}\n\n"
+        
+        yield event.plain_result(log_text)
+    
+    @filter.command("探索", alias={"探索地点"})
+    async def explore(self, event):
+        """探索地点获取资源"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        # 解析探索地点
+        msg = event.message_str.replace("探索", "").replace("探索地点", "").strip()
+        if not msg:
+            yield event.plain_result("❌ 请输入探索地点！格式：探索 魔兽山脉")
+            return
+        
+        location = msg
+        
+        response = await self._call_api("探索", {"username": username, "password": password, "location": location})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        explore_text = f"""🗺️ 探索成功！
+
+{response.get('message')}
+
+探索地点：{data.get('探索地点')}
+
+=== 获得奖励 ===
+"""
+        
+        # 处理获得的奖励
+        rewards = data.get('获得奖励', {})
+        for reward_type, amount in rewards.items():
+            explore_text += f"{reward_type}：{amount}\n"
+        
+        explore_text += f"\n消耗体力：{data.get('消耗体力')}\n"
+        explore_text += f"剩余体力：{data.get('剩余体力')}"
+        
+        yield event.plain_result(explore_text)
+    
+    @filter.command("副本", alias={"挑战副本"})
+    async def dungeon(self, event):
+        """挑战副本获得奖励"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        # 解析副本名称
+        msg = event.message_str.replace("副本", "").replace("挑战副本", "").strip()
+        if not msg:
+            yield event.plain_result("❌ 请输入副本名称！格式：副本 天焚炼气塔")
+            return
+        
+        dungeon_name = msg
+        
+        response = await self._call_api("副本", {"username": username, "password": password, "dungeon": dungeon_name})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        dungeon_text = f"""🏰 副本挑战成功！
+
+{response.get('message')}
+
+副本名称：{data.get('副本名称')}
+
+=== 获得奖励 ===
+"""
+        
+        # 处理获得的奖励
+        rewards = data.get('获得奖励', {})
+        for reward_type, amount in rewards.items():
+            dungeon_text += f"{reward_type}：{amount}\n"
+        
+        dungeon_text += f"\n消耗体力：{data.get('消耗体力')}\n"
+        dungeon_text += f"剩余体力：{data.get('剩余体力')}"
+        
+        yield event.plain_result(dungeon_text)
+    
+    @filter.command("逃跑", alias={"脱离战斗"})
+    async def escape(self, event):
+        """脱离战斗"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        response = await self._call_api("逃跑", {"username": username, "password": password})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        escape_text = f"""🏃 逃跑结果
+
+{response.get('message')}
+
+逃跑成功率：{data.get('逃跑成功率')}
+结果：{data.get('结果')}"""
+        
+        yield event.plain_result(escape_text)
+    
+    @filter.command("采集", alias={"采集药材"})
+    async def collect(self, event):
+        """采集药材"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        # 解析采集药材名称
+        msg = event.message_str.replace("采集", "").replace("采集药材", "").strip()
+        if not msg:
+            yield event.plain_result("❌ 请输入要采集的药材名称！格式：采集 凝血草")
+            return
+        
+        herb = msg
+        
+        response = await self._call_api("采集", {"username": username, "password": password, "herb": herb})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        collect_text = f"""🌿 采集成功！
+
+{response.get('message')}
+
+采集药材：{data.get('采集药材')}
+获得数量：{data.get('获得数量')}株
+
+消耗体力：{data.get('消耗体力')}
+剩余体力：{data.get('剩余体力')}"""
+        
+        yield event.plain_result(collect_text)
+    
+    @filter.command("炼制", alias={"炼制丹药"})
+    async def refine(self, event):
+        """炼制丹药"""
+        # 自动获取用户的QQ名作为用户名，QQ号作为密码
+        username = event.get_sender_name()  # 获取QQ名作为用户名
+        username = username[:12]  # 确保不超过12位
+        password = str(event.message_obj.sender.user_id)  # 使用QQ号作为密码
+        
+        # 解析炼制丹药名称
+        msg = event.message_str.replace("炼制", "").replace("炼制丹药", "").strip()
+        if not msg:
+            yield event.plain_result("❌ 请输入要炼制的丹药名称！格式：炼制 筑基灵液")
+            return
+        
+        pill = msg
+        
+        response = await self._call_api("炼制", {"username": username, "password": password, "pill": pill})
+        
+        if response.get("code") != 200:
+            yield event.plain_result(self._format_response(response))
+            return
+        
+        data = response.get("data", {})
+        refine_text = f"""⚗️ 炼制结果
+
+{response.get('message')}
+
+丹药名称：{data.get('丹药名称')}
+炼制结果：{data.get('炼制结果')}
+获得数量：{data.get('获得数量')}
+
+=== 消耗材料 ===
+"""
+        
+        # 处理消耗的材料
+        consumed = data.get('消耗材料', {})
+        for material, amount in consumed.items():
+            refine_text += f"{material}：{amount}\n"
+        
+        refine_text += f"\n消耗体力：{data.get('消耗体力')}\n"
+        refine_text += f"剩余体力：{data.get('剩余体力')}"
+        
+        yield event.plain_result(refine_text)
     
     async def terminate(self):
         """插件被卸载/停用时调用"""
