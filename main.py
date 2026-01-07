@@ -175,7 +175,7 @@ class LiteraryBattleQiBot(Star):
             return None
     
     @filter.command("斗气帮助", alias={"帮助", "斗气指令"})
-    async def help(self, event: AstrMessageEvent, *args, **kwargs):
+    async def help(self, *args, **kwargs):
         """查看所有指令说明"""
         help_text = ("📚 文字斗气指令列表：\n" +
                      "\n" +
@@ -206,7 +206,7 @@ class LiteraryBattleQiBot(Star):
             yield event.plain_result(help_text)
     
     @filter.command("创建角色", alias={"注册", "开始斗气"})
-    async def create_character(self, event: AstrMessageEvent, *args, **kwargs):
+    async def create_character(self, *args, **kwargs):
         """创建斗气角色"""
         msg = event.message_str.replace("创建角色", "").replace("注册", "").replace("开始斗气", "").strip()
         if not msg:
@@ -227,7 +227,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(self._format_response(response))
     
     @filter.command("状态", alias={"我的状态", "查看状态"})
-    async def status(self, event: AstrMessageEvent, *args, **kwargs):
+    async def status(self, *args, **kwargs):
         """查看自己的斗气状态"""
         msg = event.message_str.replace("状态", "").replace("我的状态", "").replace("查看状态", "").strip()
         if not msg:
@@ -258,7 +258,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(status_text)
     
     @filter.command("个人信息", alias={"信息", "我的信息"})
-    async def personal_info(self, event: AstrMessageEvent, *args, **kwargs):
+    async def personal_info(self, *args, **kwargs):
         """查看详细角色信息"""
         msg = event.message_str.replace("个人信息", "").replace("信息", "").replace("我的信息", "").strip()
         if not msg:
@@ -335,7 +335,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(info_text)
     
     @filter.command("打坐", alias={"修炼", "冥想"})
-    async def meditate(self, event: AstrMessageEvent, *args, **kwargs):
+    async def meditate(self, *args, **kwargs):
         """基础修炼获得斗气，每次获得20斗气"""
         msg = event.message_str.replace("打坐", "").replace("修炼", "").replace("冥想", "").strip()
         if not msg:
@@ -361,7 +361,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(meditate_text)
     
     @filter.command("突破", alias={"升级", "进阶"})
-    async def breakthrough(self, event: AstrMessageEvent, *args, **kwargs):
+    async def breakthrough(self, *args, **kwargs):
         """消耗斗气突破境界，有成功率"""
         msg = event.message_str.replace("突破", "").replace("升级", "").replace("进阶", "").strip()
         if not msg:
@@ -388,7 +388,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(breakthrough_text)
     
     @filter.command("调息", alias={"恢复", "休息"})
-    async def recover(self, event: AstrMessageEvent, *args, **kwargs):
+    async def recover(self, *args, **kwargs):
         """恢复生命和灵力"""
         msg = event.message_str.replace("调息", "").replace("恢复", "").replace("休息", "").strip()
         if not msg:
@@ -400,7 +400,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(self._format_response(response))
     
     @filter.command("闭关", alias={"深度修炼"})
-    async def seclusion(self, event: AstrMessageEvent, *args, **kwargs):
+    async def seclusion(self, *args, **kwargs):
         """长时间修炼获得更多斗气，每分钟1斗气"""
         msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
         if not msg:
@@ -435,7 +435,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(seclusion_text)
     
     @filter.command("排行榜", alias={"排名", "榜单"})
-    async def ranking(self, event: AstrMessageEvent, *args, **kwargs):
+    async def ranking(self, *args, **kwargs):
         """查看斗气排行榜"""
         response = await self._call_api("排行榜", {})
         
@@ -462,7 +462,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(ranking_text)
     
     @filter.command("道友", alias={"好友", "道友列表"})
-    async def friends(self, event: AstrMessageEvent, *args, **kwargs):
+    async def friends(self, *args, **kwargs):
         """查看好友/道友"""
         msg = event.message_str.replace("道友", "").replace("好友", "").replace("道友列表", "").strip()
         if not msg:
@@ -490,7 +490,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(friends_text)
     
     @filter.command("切磋", alias={"比试", "挑战"})
-    async def duel(self, event: AstrMessageEvent, *args, **kwargs):
+    async def duel(self, *args, **kwargs):
         """与道友切磋"""
         msg = event.message_str.replace("切磋", "").replace("比试", "").replace("挑战", "").strip()
         parts = msg.split()
@@ -540,7 +540,7 @@ class LiteraryBattleQiBot(Star):
         yield event.plain_result(duel_text)
     
     @filter.command("赠送", alias={"送礼", "给予"})
-    async def give(self, event: AstrMessageEvent, *args, **kwargs):
+    async def give(self, *args, **kwargs):
         """赠送物品给道友"""
         msg = event.message_str.replace("赠送", "").replace("送礼", "").replace("给予", "").strip()
         parts = msg.split()
