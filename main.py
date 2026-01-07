@@ -6,7 +6,7 @@ import httpx
 
 API_URL = "http://api.tinyaii.top/index.php"
 
-# 菜单样式的HTML模板
+# 菜单样式的HTML模板（参考工具箱插件样式）
 MENU_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -20,10 +20,10 @@ MENU_TEMPLATE = '''
             background-color: #f5f5f5;
             margin: 0;
             padding: 20px;
-            line-height: 1.8;
+            line-height: 2.0;
         }
         .container {
-            max-width: 800px;
+            max-width: 950px;
             margin: 0 auto;
             background-color: white;
             padding: 40px;
@@ -53,9 +53,9 @@ MENU_TEMPLATE = '''
         }
         .menu-item {
             font-size: 18px;
-            line-height: 2.0;
+            line-height: 2.2;
             margin: 15px 0;
-            padding: 15px;
+            padding: 10px;
             background-color: #f8f9fa;
             border-radius: 8px;
             border-left: 4px solid #ffc107;
@@ -63,20 +63,44 @@ MENU_TEMPLATE = '''
         .command-name {
             font-weight: bold;
             color: #dc3545;
+            font-size: 24px;
+        }
+        .command-format {
+            color: #dc3545;
+            font-weight: bold;
             font-size: 20px;
-            margin-right: 15px;
         }
         .command-desc {
             color: #495057;
+            font-weight: bold;
+        }
+        .example-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        .example-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #6f42c1;
+            margin-bottom: 20px;
+        }
+        .example-item {
+            font-size: 16px;
+            line-height: 1.8;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e7f5ff;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
         }
         .note-section {
-            margin-top: 40px;
+            margin-top: 30px;
             padding: 15px;
             background-color: #fff3cd;
             border: 1px solid #ffeeba;
             border-radius: 6px;
             color: #856404;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -129,6 +153,9 @@ class LiteraryBattleQiBot(Star):
             lines = text.split('\n')
             html_parts = []
             
+            # 添加分类标题
+            html_parts.append('<div class="category-title">📚 斗气修炼指令</div>')
+            
             # 处理指令列表
             for line in lines:
                 line = line.strip()
@@ -144,8 +171,8 @@ class LiteraryBattleQiBot(Star):
                     
                     # 生成HTML
                     html_parts.append(f'<div class="menu-item">')
-                    html_parts.append(f'<span class="command-name">{command_name}</span>')
-                    html_parts.append(f'<span class="command-desc">{command_desc}</span>')
+                    html_parts.append(f'<span class="command-format">{command_name}</span>')
+                    html_parts.append(f'<span class="command-desc"> - {command_desc}</span>')
                     html_parts.append(f'</div>')
             
             # 组装最终HTML内容
@@ -162,7 +189,7 @@ class LiteraryBattleQiBot(Star):
             }
             
             # 调用AstrBot的html_render方法
-            image_url = await self.context.html_render(
+            image_url = await self.html_render(
                 html_content,  # 渲染后的HTML内容
                 {},  # 空数据字典
                 True,  # 返回URL
@@ -178,8 +205,7 @@ class LiteraryBattleQiBot(Star):
     @filter.command("斗气帮助", alias={"帮助", "斗气指令"})
     async def help(self, event):
         """查看所有指令说明"""
-        help_text = ("📚 文字斗气指令列表：\n" +
-                     "\n" +
+        help_text = (
                      "🔹 **斗气帮助**   - 查看所有指令说明\n" +
                      "🔹 **创建角色**   - 创建斗气角色（格式：创建角色 123456）\n" +
                      "🔹 **状态**       - 查看自己的斗气状态\n" +
@@ -190,52 +216,55 @@ class LiteraryBattleQiBot(Star):
                      "🔹 **闭关**       - 深度修炼获得更多斗气（冷却2小时）\n" +
                      "🔹 **排行榜**     - 查看斗气排行榜\n" +
                      "🔹 **道友**       - 查看好友/道友列表\n" +
-                     "🔹 **切磋**       - 与道友切磋（格式：切磋 @456789）\n" +
-                     "🔹 **赠送**       - 赠送物品给道友（格式：赠送 @456789 灵石x10）\n" +
-                     "\n" +
-                     "💡 输入指令前不需要加斜杠，直接输入指令即可！")
+                     "🔹 **切磋**       - 与道友切磋（格式：切磋 123456 @456789）\n" +
+                     "🔹 **赠送**       - 赠送物品给道友（格式：赠送 123456 @456789 灵石x10）\n"
+                     )
         
         # 尝试生成图片
         image_url = await self.text_to_image_menu_style(help_text)
         
         if image_url:
             # 如果生成图片成功，发送图片
-            from astrbot.api.message_components import Image
-            return CommandResult().message([Image.fromURL(image_url)])
+            yield event.image_result(image_url).use_t2i(False)
         else:
             # 否则发送纯文本
-            return CommandResult().message(help_text)
+            yield event.plain_result(help_text)
     
     @filter.command("创建角色", alias={"注册", "开始斗气"})
     async def create_character(self, event):
         """创建斗气角色"""
         msg = event.message_str.replace("创建角色", "").replace("注册", "").replace("开始斗气", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：创建角色 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：创建角色 123456")
+            return
         
         username = msg.strip()
         # 检查用户名格式
         if not username.isdigit():
-            return CommandResult().error("❌ 用户名只能是纯数字！")
+            yield event.plain_result("❌ 用户名只能是纯数字！")
+            return
         
         if len(username) > 12:
-            return CommandResult().error("❌ 用户名长度不能超过12位！")
+            yield event.plain_result("❌ 用户名长度不能超过12位！")
+            return
         
         response = await self._call_api("创建角色", {"username": username})
-        return CommandResult().message(self._format_response(response))
+        yield event.plain_result(self._format_response(response))
     
     @filter.command("状态", alias={"我的状态", "查看状态"})
     async def status(self, event):
         """查看自己的斗气状态"""
         msg = event.message_str.replace("状态", "").replace("我的状态", "").replace("查看状态", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：状态 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：状态 123456")
+            return
         
         username = msg.strip()
         response = await self._call_api("状态", {"username": username})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         status_text = f"""🌟 {data.get('用户名')} 的状态信息：
@@ -251,20 +280,22 @@ class LiteraryBattleQiBot(Star):
 💰 金币：{data.get('金币')}
 💎 灵石：{data.get('灵石')}
 """
-        return CommandResult().message(status_text)
+        yield event.plain_result(status_text)
     
     @filter.command("个人信息", alias={"信息", "我的信息"})
     async def personal_info(self, event):
         """查看详细角色信息"""
         msg = event.message_str.replace("个人信息", "").replace("信息", "").replace("我的信息", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：个人信息 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：个人信息 123456")
+            return
         
         username = msg.strip()
         response = await self._call_api("个人信息", {"username": username})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         basic = data.get("基本信息", {})
@@ -326,20 +357,22 @@ class LiteraryBattleQiBot(Star):
 === 物品 ===
 {chr(10).join(f"- {item}" for item in items) if items else "暂无物品"}
 """
-        return CommandResult().message(info_text)
+        yield event.plain_result(info_text)
     
     @filter.command("打坐", alias={"修炼", "冥想"})
     async def meditate(self, event):
         """基础修炼获得斗气，每次获得20斗气"""
         msg = event.message_str.replace("打坐", "").replace("修炼", "").replace("冥想", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：打坐 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：打坐 123456")
+            return
         
         username = msg.strip()
         response = await self._call_api("打坐", {"username": username})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         meditate_text = f"""🧘‍♀️ 打坐修炼成功！
@@ -350,20 +383,22 @@ class LiteraryBattleQiBot(Star):
 剩余体力：{data.get('剩余体力')}
 
 ⏰ 冷却时间：10分钟"""
-        return CommandResult().message(meditate_text)
+        yield event.plain_result(meditate_text)
     
     @filter.command("突破", alias={"升级", "进阶"})
     async def breakthrough(self, event):
         """消耗斗气突破境界，有成功率"""
         msg = event.message_str.replace("突破", "").replace("升级", "").replace("进阶", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：突破 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：突破 123456")
+            return
         
         username = msg.strip()
         response = await self._call_api("突破", {"username": username})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         breakthrough_text = f"""🚀 突破成功！
@@ -375,25 +410,27 @@ class LiteraryBattleQiBot(Star):
 消耗体力：{data.get('消耗体力')}
 剩余体力：{data.get('剩余体力')}
 """
-        return CommandResult().message(breakthrough_text)
+        yield event.plain_result(breakthrough_text)
     
     @filter.command("调息", alias={"恢复", "休息"})
     async def recover(self, event):
         """恢复生命和灵力"""
         msg = event.message_str.replace("调息", "").replace("恢复", "").replace("休息", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：调息 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：调息 123456")
+            return
         
         username = msg.strip()
         response = await self._call_api("调息", {"username": username})
-        return CommandResult().message(self._format_response(response))
+        yield event.plain_result(self._format_response(response))
     
     @filter.command("闭关", alias={"深度修炼"})
     async def seclusion(self, event):
         """长时间修炼获得更多斗气，每分钟1斗气"""
         msg = event.message_str.replace("闭关", "").replace("深度修炼", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：闭关 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：闭关 123456")
+            return
         
         parts = msg.split()
         username = parts[0]
@@ -406,7 +443,8 @@ class LiteraryBattleQiBot(Star):
         response = await self._call_api("闭关", params)
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         seclusion_text = f"""🏯 闭关修炼成功！
@@ -419,7 +457,7 @@ class LiteraryBattleQiBot(Star):
 剩余体力：{data.get('剩余体力')}
 
 ⏰ 冷却时间：2小时"""
-        return CommandResult().message(seclusion_text)
+        yield event.plain_result(seclusion_text)
     
     @filter.command("排行榜", alias={"排名", "榜单"})
     async def ranking(self, event):
@@ -427,14 +465,16 @@ class LiteraryBattleQiBot(Star):
         response = await self._call_api("排行榜", {})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         ranking_list = data.get("排行榜", [])
         update_time = data.get("更新时间")
         
         if not ranking_list:
-            return CommandResult().message("📊 排行榜为空！")
+            yield event.plain_result("📊 排行榜为空！")
+            return
         
         ranking_text = "📊 斗气排行榜\n\n"
         for i, player in enumerate(ranking_list, 1):
@@ -444,20 +484,22 @@ class LiteraryBattleQiBot(Star):
             ranking_text += f"   等级：{player.get('等级')}\n\n"
         
         ranking_text += f"⏰ 更新时间：{update_time}"
-        return CommandResult().message(ranking_text)
+        yield event.plain_result(ranking_text)
     
     @filter.command("道友", alias={"好友", "道友列表"})
     async def friends(self, event):
         """查看好友/道友"""
         msg = event.message_str.replace("道友", "").replace("好友", "").replace("道友列表", "").strip()
         if not msg:
-            return CommandResult().error("❌ 请输入用户名！格式：道友 123456")
+            yield event.plain_result("❌ 请输入用户名！格式：道友 123456")
+            return
         
         username = msg.strip()
         response = await self._call_api("道友", {"username": username})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         friend_list = data.get("道友列表", [])
@@ -470,7 +512,7 @@ class LiteraryBattleQiBot(Star):
             friends_text += f"  等级：{friend.get('等级')}\n"
             friends_text += f"  修为值：{friend.get('修为值')}\n\n"
         
-        return CommandResult().message(friends_text)
+        yield event.plain_result(friends_text)
     
     @filter.command("切磋", alias={"比试", "挑战"})
     async def duel(self, event):
@@ -478,19 +520,22 @@ class LiteraryBattleQiBot(Star):
         msg = event.message_str.replace("切磋", "").replace("比试", "").replace("挑战", "").strip()
         parts = msg.split()
         if len(parts) < 2:
-            return CommandResult().error("❌ 请输入完整参数！格式：切磋 123456 @456789")
+            yield event.plain_result("❌ 请输入完整参数！格式：切磋 123456 @456789")
+            return
         
         username = parts[0]
         target = parts[1]
         
         # 检查target格式
         if not target.startswith("@"):
-            return CommandResult().error("❌ 切磋对象格式错误！请使用 @用户名 格式，如 @456789")
+            yield event.plain_result("❌ 切磋对象格式错误！请使用 @用户名 格式，如 @456789")
+            return
         
         response = await self._call_api("切磋", {"username": username, "target": target})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         duel_text = f"""⚔️ 切磋结果
@@ -517,7 +562,7 @@ class LiteraryBattleQiBot(Star):
 失败：{data.get('当前战绩', {}).get('失败')}
 
 ⏰ 冷却时间：5分钟"""
-        return CommandResult().message(duel_text)
+        yield event.plain_result(duel_text)
     
     @filter.command("赠送", alias={"送礼", "给予"})
     async def give(self, event):
@@ -525,7 +570,8 @@ class LiteraryBattleQiBot(Star):
         msg = event.message_str.replace("赠送", "").replace("送礼", "").replace("给予", "").strip()
         parts = msg.split()
         if len(parts) < 3:
-            return CommandResult().error("❌ 请输入完整参数！格式：赠送 123456 @456789 灵石x10")
+            yield event.plain_result("❌ 请输入完整参数！格式：赠送 123456 @456789 灵石x10")
+            return
         
         username = parts[0]
         target = parts[1]
@@ -533,12 +579,14 @@ class LiteraryBattleQiBot(Star):
         
         # 检查target格式
         if not target.startswith("@"):
-            return CommandResult().error("❌ 赠送对象格式错误！请使用 @用户名 格式，如 @456789")
+            yield event.plain_result("❌ 赠送对象格式错误！请使用 @用户名 格式，如 @456789")
+            return
         
         response = await self._call_api("赠送", {"username": username, "target": target, "item": item})
         
         if response.get("code") != 200:
-            return CommandResult().error(self._format_response(response))
+            yield event.plain_result(self._format_response(response))
+            return
         
         data = response.get("data", {})
         give_text = f"""🎁 赠送成功！
@@ -552,7 +600,7 @@ class LiteraryBattleQiBot(Star):
 对方获得：{data.get('对方获得')}
 
 ⏰ 冷却时间：10分钟"""
-        return CommandResult().message(give_text)
+        yield event.plain_result(give_text)
     
     async def terminate(self):
         """插件被卸载/停用时调用"""
